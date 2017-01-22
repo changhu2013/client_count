@@ -5,7 +5,6 @@ import "github.com/garyburd/redigo/redis"
 import "strconv"
 import "os"
 
-//获取一个redis连接
 func getRedisConnect(redisURL string) redis.Conn {
 	conn, err := redis.DialURL(redisURL)
 	if err != nil {
@@ -16,8 +15,7 @@ func getRedisConnect(redisURL string) redis.Conn {
 	return conn
 }
 
-//取客户端总数
-func clientCount(c redis.Conn, key string) int64 {
+func doGetClientCount(c redis.Conn, key string) int64 {
 	value, err := redis.String(c.Do("GET", key))
 	if err != nil {
 		return 0
@@ -30,6 +28,31 @@ func clientCount(c redis.Conn, key string) int64 {
 	return cc
 }
 
+func getClientCount(redisURL string, vvv bool) int64 {
+	var conn = getRedisConnect(redisURL)
+	var keys, err = redis.Strings(conn.Do("KEYS", "websocket_clients_count_*"))
+	defer conn.Close()
+
+	if err != nil {
+		fmt.Println(0)
+		return 0
+	}
+
+	var count int64
+	for idx := range keys {
+		var key = keys[idx]
+		var cc = doGetClientCount(conn, keys[idx])
+
+		if vvv {
+			fmt.Println(key, cc)
+		}
+
+		count = count + cc
+	}
+
+	return count
+}
+
 func main() {
 	var args = os.Args[1:]
 	var vvv = len(args) > 0 && args[0] == "-v"
@@ -40,28 +63,7 @@ func main() {
 		redisURL = "redis://192.168.200.50:6379"
 	}
 
-	var conn = getRedisConnect(redisURL)
-
-	defer conn.Close()
-
-	var keys, err = redis.Strings(conn.Do("KEYS", "websocket_clients_count_*"))
-
-	if err != nil {
-		fmt.Println(0)
-		return
-	}
-
-	var count int64
-	for idx := range keys {
-		var key = keys[idx]
-		var cc = clientCount(conn, keys[idx])
-
-		if vvv {
-			fmt.Println(key, cc)
-		}
-
-		count = count + cc
-	}
+	var count = getClientCount(redisURL, vvv)
 
 	fmt.Println(count)
 }
