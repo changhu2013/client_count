@@ -109,8 +109,8 @@ func main() {
 	flag.BoolVar(&h, "h", false, "帮助信息")
 	flag.BoolVar(&v, "v", false, "显示更多细节信息")
 	flag.StringVar(&s, "s", "10", "向监控系统实时发送连接数的频率，单位(秒)")
-	flag.StringVar(&r, "r", "redis://192.168.1.153:6379", "Redis连接URL")
-	flag.StringVar(&m, "m", "http://localhost:9090", "监控系统服务地址")
+	flag.StringVar(&r, "r", "redis://127.0.0.1:6379", "Redis连接URL")
+	flag.StringVar(&m, "m", "http://127.0.0.1:9090", "监控系统服务地址")
 
 	flag.Parse()
 
