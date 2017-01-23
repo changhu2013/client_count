@@ -62,6 +62,7 @@ func doReport(count int64) {
 	var client = &http.Client{}
 	var json = "{\"time\":\"" + time.Now().String() + "\", \"count\":" + strconv.FormatInt(count, 10) + "}"
 	req, err := http.NewRequest("POST", "http://localhost:9090", bytes.NewBufferString(json))
+
 	if err != nil {
 		return
 	}
