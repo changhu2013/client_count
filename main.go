@@ -67,7 +67,7 @@ func getClientCount(conn redis.Conn, vvv bool) int64 {
 func doReport(monitorURL string, count int64, step int64) {
 	json := `[{"metric":"%s","endpoint":"%s","timestamp":%d,"step":%d,"value":%d,"counterType":"GAUGE","tags":"%s"}]`
 
-	metric := "beeper_mpp_connection_count"
+	metric := "beeper_mpp.connection.current_client_count"
 	hostname, _ := os.Hostname()
 	timestamp := time.Now().Unix()
 	tags := "project=beeper_mpp,module=master,value=client_count"
@@ -110,7 +110,7 @@ func main() {
 	flag.BoolVar(&v, "v", false, "显示更多细节信息")
 	flag.StringVar(&s, "s", "10", "向监控系统实时发送连接数的频率，单位(秒)")
 	flag.StringVar(&r, "r", "redis://127.0.0.1:6379", "Redis连接URL")
-	flag.StringVar(&m, "m", "http://127.0.0.1:9090", "监控系统服务地址")
+	flag.StringVar(&m, "m", "http://127.0.0.1:1988", "监控系统服务地址")
 
 	flag.Parse()
 
@@ -133,7 +133,7 @@ func main() {
 
 start:
 
-	doReport(m, getClientCount(conn, v), step)
+	go doReport(m, getClientCount(conn, v), step)
 	time.Sleep(ss)
 
 	goto start
